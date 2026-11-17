@@ -1,0 +1,22 @@
+@model UserLinkGuardViewModel
+@{
+    ViewData["Title"] = "Свързване с охранител";
+    ViewData["Subtitle"] = $"{Model.FullName} · {Model.Email}";
+}
+<partial name="_PageHeaderPartial" model='"Свързване с охранител"' />
+
+<div class="gp-card gp-form-card">
+    <form asp-action="LinkGuard" method="post" novalidate>
+        <input type="hidden" asp-for="UserId" />
+        <label asp-for="GuardId" class="form-label"></label>
+        <select asp-for="GuardId" asp-items="@(new SelectList(Model.Guards, nameof(DropdownItemViewModel.Id), nameof(DropdownItemViewModel.Text)))" class="form-select">
+            <option value="">— без охранител —</option>
+        </select>
+        <span asp-validation-for="GuardId" class="text-danger small"></span>
+        <p class="small text-muted mt-2 mb-0">Свързаният потребител вижда своя график, може да подава сигнали и да заявява отпуск.</p>
+        <div class="gp-form-actions">
+            <button type="submit" class="btn btn-gp"><i class="bi bi-check-lg"></i> Запази</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Отказ</a>
+        </div>
+    </form>
+</div>

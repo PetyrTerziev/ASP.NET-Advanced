@@ -1,0 +1,96 @@
+@model UserIndexViewModel
+@{
+    ViewData["Title"] = "Потребители";
+    var pager = new PagerViewModel
+    {
+        CurrentPage = Model.Result.Page,
+        TotalPages = Model.Result.TotalPages,
+        RouteValues = new Dictionary<string, string?> { ["searchTerm"] = Model.SearchTerm },
+    };
+    string currentUserId = User.GetUserId();
+}
+
+<div class="gp-page-header">
+    <h1>Потребители</h1>
+    <p class="text-muted mb-0">Регистрирани профили: @Model.Result.TotalCount</p>
+</div>
+
+<form method="get" asp-action="Index" class="gp-filters row g-2 align-items-end mb-4">
+    <div class="col-md-10">
+        <label for="searchTerm" class="form-label">Търсене</label>
+        <input type="search" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Име или имейл" />
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-dark"><i class="bi bi-funnel"></i> Филтрирай</button>
+    </div>
+</form>
+
+<div class="gp-card p-0">
+    <div class="table-responsive">
+        <table class="table align-middle gp-table mb-0">
+            <thead>
+                <tr>
+                    <th>Потребител</th>
+                    <th>Роля</th>
+                    <th>Охранител</th>
+                    <th class="d-none d-md-table-cell">Регистриран</th>
+                    <th class="text-end">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.Result.Items)
+                {
+                    bool isSelf = user.Id == currentUserId;
+                    <tr class="@(user.IsLockedOut ? "gp-muted" : "")">
+                        <td>
+                            <div class="fw-semibold">@user.FullName</div>
+                            <div class="small text-muted">@user.Email</div>
+                        </td>
+                        <td>
+                            @if (user.IsAdministrator)
+                            {
+                                <span class="gp-rank gp-rank-supervisor">@RoleNames.AdministratorDisplayName</span>
+                            }
+                            else
+                            {
+                                <span class="gp-rank">@RoleNames.UserDisplayName</span>
+                            }
+                            @if (user.IsLockedOut)
+                            {
+                                <span class="badge bg-secondary ms-1">Заключен</span>
+                            }
+                        </td>
+                        <td>
+                            @if (user.GuardId.HasValue)
+                            {
+                                <a asp-controller="Guards" asp-action="Details" asp-route-id="@user.GuardId">@user.GuardName</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="d-none d-md-table-cell">@user.CreatedOn.ToString(ApplicationConstants.DateFormat)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="LinkGuard" asp-route-id="@user.Id" title="Свържи с охранител"><i class="bi bi-link-45deg"></i></a>
+                            @if (!isSelf)
+                            {
+                                <form asp-action="SetAdministrator" asp-route-id="@user.Id" asp-route-value="@(!user.IsAdministrator)" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-dark" title="@(user.IsAdministrator ? "Премахни администраторските права" : "Направи администратор")">
+                                        <i class="bi @(user.IsAdministrator ? "bi-shield-minus" : "bi-shield-plus")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="SetLocked" asp-route-id="@user.Id" asp-route-value="@(!user.IsLockedOut)" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm @(user.IsLockedOut ? "btn-outline-success" : "btn-outline-danger")" title="@(user.IsLockedOut ? "Отключи" : "Заключи")">
+                                        <i class="bi @(user.IsLockedOut ? "bi-unlock" : "bi-lock")"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_PaginationPartial" model="pager" />

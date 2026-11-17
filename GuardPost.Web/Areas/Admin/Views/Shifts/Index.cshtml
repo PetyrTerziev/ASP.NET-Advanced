@@ -1,0 +1,54 @@
+@model ShiftWeekViewModel
+@{
+    ViewData["Title"] = "График";
+    string Week(DateTime date) => date.ToString("yyyy-MM-dd");
+}
+
+<div class="gp-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Седмичен график</h1>
+        <p class="text-muted mb-0">
+            @Model.WeekStart.ToString(ApplicationConstants.DateFormat) – @Model.WeekEnd.ToString(ApplicationConstants.DateFormat)
+            · смени: @Model.TotalShifts · @Model.TotalHours.ToString("0.#") ч.
+        </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <div class="btn-group" role="group" aria-label="Навигация по седмици">
+            <a class="btn btn-outline-dark" asp-action="Index" asp-route-weekStart="@Week(Model.WeekStart.AddDays(-7))"
+               asp-route-siteId="@Model.SiteId" asp-route-guardId="@Model.GuardId" title="Предишна седмица">&lsaquo; Назад</a>
+            <a class="btn btn-outline-dark" asp-action="Index" asp-route-siteId="@Model.SiteId" asp-route-guardId="@Model.GuardId">Тази седмица</a>
+            <a class="btn btn-outline-dark" asp-action="Index" asp-route-weekStart="@Week(Model.WeekStart.AddDays(7))"
+               asp-route-siteId="@Model.SiteId" asp-route-guardId="@Model.GuardId" title="Следваща седмица">Напред &rsaquo;</a>
+        </div>
+        <a class="btn btn-gp" asp-action="Create"><i class="bi bi-plus-lg"></i> Нова смяна</a>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="gp-filters row g-2 align-items-end mb-4">
+    <input type="hidden" name="weekStart" value="@Week(Model.WeekStart)" />
+    <div class="col-md-5">
+        <label for="siteId" class="form-label">Обект</label>
+        <select id="siteId" name="siteId" class="form-select">
+            <option value="">Всички обекти</option>
+            @foreach (var site in Model.Sites)
+            {
+                <option value="@site.Id" selected="@(site.Id == Model.SiteId)">@site.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-5">
+        <label for="guardId" class="form-label">Охранител</label>
+        <select id="guardId" name="guardId" class="form-select">
+            <option value="">Всички охранители</option>
+            @foreach (var guard in Model.Guards)
+            {
+                <option value="@guard.Id" selected="@(guard.Id == Model.GuardId)">@guard.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-dark"><i class="bi bi-funnel"></i> Филтрирай</button>
+    </div>
+</form>
+
+<partial name="_WeekGridPartial" model="Model" view-data='new ViewDataDictionary(ViewData) { ["Editable"] = true }' />

@@ -1,0 +1,80 @@
+@model LeaveRequestReviewViewModel
+@{
+    ViewData["Title"] = "Заявка за отпуск";
+    var request = Model.Request;
+    bool pending = request.Status == LeaveStatus.Pending;
+    bool hasConflicts = Model.ConflictingShifts.Any();
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-action="Index">Отпуски</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Заявка №@request.Id</li>
+    </ol>
+</nav>
+
+<div class="gp-page-header">
+    <div class="mb-2"><partial name="_LeaveStatusBadgePartial" model="request.Status" /></div>
+    <h1>@request.GuardName</h1>
+    <p class="text-muted mb-0">
+        @request.Type.GetDisplayName() · @request.StartDate.ToString(ApplicationConstants.DateFormat) – @request.EndDate.ToString(ApplicationConstants.DateFormat)
+        (@request.Days дни)
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <section class="gp-card mb-4">
+            <dl class="gp-dl mb-0">
+                <dt>Подадена на</dt>
+                <dd>@request.CreatedOn.ToString(ApplicationConstants.DateTimeFormat)</dd>
+                <dt>Причина</dt>
+                <dd class="gp-pre">@(string.IsNullOrWhiteSpace(request.Reason) ? "—" : request.Reason)</dd>
+                @if (!pending)
+                {
+                    <dt>Решение от</dt>
+                    <dd>@(request.ReviewedBy ?? "—") @(request.ReviewedOn?.ToString(ApplicationConstants.DateTimeFormat))</dd>
+                    <dt>Бележка</dt>
+                    <dd class="gp-pre">@(request.ReviewNote ?? "—")</dd>
+                }
+            </dl>
+        </section>
+
+        @if (pending)
+        {
+            <section class="gp-card">
+                <h2 class="gp-card-title">Решение</h2>
+                <form method="post" novalidate>
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="Input.Id" />
+                    <label asp-for="Input.ReviewNote" class="form-label"></label>
+                    <textarea asp-for="Input.ReviewNote" class="form-control" rows="3" placeholder="Задължителна при отказ"></textarea>
+                    <span asp-validation-for="Input.ReviewNote" class="text-danger small"></span>
+                    <div class="gp-form-actions">
+                        <button type="submit" class="btn btn-success" asp-action="Approve" disabled="@hasConflicts">
+                            <i class="bi bi-check-lg"></i> Одобри
+                        </button>
+                        <button type="submit" class="btn btn-outline-danger" asp-action="Reject">
+                            <i class="bi bi-x-lg"></i> Откажи
+                        </button>
+                    </div>
+                </form>
+            </section>
+        }
+    </div>
+    <div class="col-lg-7">
+        <section class="gp-card @(hasConflicts && pending ? "gp-danger-card" : "")">
+            <h2 class="gp-card-title"><i class="bi bi-calendar-x"></i> Смени в периода на отпуска</h2>
+            @if (hasConflicts && pending)
+            {
+                <p class="small text-danger">Преразпределете или изтрийте тези смени, преди да одобрите отпуска.</p>
+            }
+            <partial name="_ShiftTablePartial" model="Model.ConflictingShifts"
+                     view-data='new ViewDataDictionary(ViewData) { ["ShowGuard"] = false, ["EmptyText"] = "Няма смени в този период – отпускът може да бъде одобрен." }' />
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
