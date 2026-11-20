@@ -1,0 +1,22 @@
+@model ShiftWeekViewModel
+@{
+    ViewData["Title"] = "Моят график";
+    string Week(DateTime date) => date.ToString("yyyy-MM-dd");
+}
+
+<div class="gp-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Моят график</h1>
+        <p class="text-muted mb-0">
+            @Model.WeekStart.ToString(ApplicationConstants.DateFormat) – @Model.WeekEnd.ToString(ApplicationConstants.DateFormat)
+            · смени: @Model.TotalShifts · @Model.TotalHours.ToString("0.#") ч.
+        </p>
+    </div>
+    <div class="btn-group" role="group" aria-label="Навигация по седмици">
+        <a class="btn btn-outline-dark" asp-action="Week" asp-route-weekStart="@Week(Model.WeekStart.AddDays(-7))">&lsaquo; Назад</a>
+        <a class="btn btn-outline-dark" asp-action="Week">Тази седмица</a>
+        <a class="btn btn-outline-dark" asp-action="Week" asp-route-weekStart="@Week(Model.WeekStart.AddDays(7))">Напред &rsaquo;</a>
+    </div>
+</div>
+
+<partial name="_WeekGridPartial" model="Model" />

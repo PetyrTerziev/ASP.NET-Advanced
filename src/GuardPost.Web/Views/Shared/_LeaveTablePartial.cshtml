@@ -1,0 +1,76 @@
+@model IEnumerable<LeaveRequestListItemViewModel>
+@{
+    bool showGuard = ViewData["ShowGuard"] as bool? ?? false;
+    bool showReview = ViewData["ShowReview"] as bool? ?? false;
+    bool allowCancel = ViewData["AllowCancel"] as bool? ?? false;
+    bool compact = ViewData["Compact"] as bool? ?? false;
+    string emptyText = ViewData["EmptyText"] as string ?? "Няма заявки за отпуск.";
+}
+@if (!Model.Any())
+{
+    <p class="text-muted fst-italic mb-0">@emptyText</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle gp-table mb-0">
+            <thead>
+                <tr>
+                    @if (showGuard) { <th>Охранител</th> }
+                    <th>Период</th>
+                    <th class="text-end">Дни</th>
+                    @if (!compact) { <th>Вид</th> }
+                    <th>Статус</th>
+                    @if (!compact) { <th class="d-none d-md-table-cell">Бележка</th> }
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var leave in Model)
+                {
+                    <tr>
+                        @if (showGuard)
+                        {
+                            <td><a asp-area="@RoleNames.AdminArea" asp-controller="Guards" asp-action="Details" asp-route-id="@leave.GuardId">@leave.GuardName</a></td>
+                        }
+                        <td class="text-nowrap">@leave.StartDate.ToString(ApplicationConstants.DateFormat) – @leave.EndDate.ToString(ApplicationConstants.DateFormat)</td>
+                        <td class="text-end">@leave.Days</td>
+                        @if (!compact)
+                        {
+                            <td>@leave.Type.GetDisplayName()</td>
+                        }
+                        <td><partial name="_LeaveStatusBadgePartial" model="leave.Status" /></td>
+                        @if (!compact)
+                        {
+                            <td class="d-none d-md-table-cell small">
+                                @if (!string.IsNullOrEmpty(leave.ReviewNote))
+                                {
+                                    <span title="@leave.ReviewedBy">@leave.ReviewNote</span>
+                                }
+                                else if (!string.IsNullOrEmpty(leave.Reason))
+                                {
+                                    <span class="text-muted">@leave.Reason</span>
+                                }
+                            </td>
+                        }
+                        <td class="text-end text-nowrap">
+                            @if (showReview)
+                            {
+                                <a class="btn btn-sm @(leave.Status == LeaveStatus.Pending ? "btn-gp" : "btn-outline-secondary")"
+                                   asp-area="@RoleNames.AdminArea" asp-controller="LeaveRequests" asp-action="Review" asp-route-id="@leave.Id">
+                                    @(leave.Status == LeaveStatus.Pending ? "Разгледай" : "Детайли")
+                                </a>
+                            }
+                            @if (allowCancel && leave.Status == LeaveStatus.Pending)
+                            {
+                                <form asp-area="" asp-controller="LeaveRequests" asp-action="Cancel" asp-route-id="@leave.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Анулирай</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

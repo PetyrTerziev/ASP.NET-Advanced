@@ -1,0 +1,59 @@
+@model ShiftWeekViewModel
+@* Weekly grid shared by the admin schedule (editable) and "Моят график" (read-only). *@
+@{
+    bool editable = ViewData["Editable"] as bool? ?? false;
+}
+<div class="gp-week">
+    @foreach (var day in Model.Days)
+    {
+        bool isToday = day.Date == Model.Now.Date;
+        <section class="gp-day @(isToday ? "gp-day-today" : "")">
+            <header class="gp-day-header">
+                <span>@day.Date.ToString(ApplicationConstants.DayHeaderFormat)</span>
+                @if (isToday)
+                {
+                    <span class="badge bg-warning text-dark">Днес</span>
+                }
+            </header>
+            <div class="gp-day-body">
+                @foreach (var shift in day.Shifts)
+                {
+                    string shiftCss = $"gp-shift {(shift.IsNightShift ? "gp-shift-night" : "")} {(shift.IsOngoing(Model.Now) ? "gp-shift-live" : "")}";
+                    @if (editable)
+                    {
+                        @:<a class="@shiftCss" href="@Url.Action("Details", "Shifts", new { area = RoleNames.AdminArea, id = shift.Id })">
+                    }
+                    else
+                    {
+                        @:<div class="@shiftCss">
+                    }
+                        <span class="gp-shift-time">
+                            <i class="bi @(shift.IsNightShift ? "bi-moon-stars" : "bi-sun")"></i>
+                            @shift.StartTime.ToString(ApplicationConstants.TimeFormat)–@shift.EndTime.ToString(ApplicationConstants.TimeFormat)
+                        </span>
+                        <span class="gp-shift-site">@shift.SiteName</span>
+                        <span class="gp-shift-guard"><i class="bi bi-person"></i> @shift.GuardName</span>
+                    @if (editable)
+                    {
+                        @:</a>
+                    }
+                    else
+                    {
+                        @:</div>
+                    }
+                }
+                @if (!day.Shifts.Any())
+                {
+                    <p class="text-muted small fst-italic mb-2">Няма смени</p>
+                }
+                @if (editable)
+                {
+                    <a class="gp-day-add" asp-area="@RoleNames.AdminArea" asp-controller="Shifts" asp-action="Create" asp-route-date="@day.Date.ToString("yyyy-MM-dd")"
+                       asp-route-siteId="@Model.SiteId" asp-route-guardId="@Model.GuardId">
+                        <i class="bi bi-plus"></i> Добави
+                    </a>
+                }
+            </div>
+        </section>
+    }
+</div>

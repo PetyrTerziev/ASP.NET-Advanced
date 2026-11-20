@@ -1,0 +1,17 @@
+@model ErrorViewModel
+@{
+    (string title, string heading, string text, string icon) = Model.StatusCode switch
+    {
+        404 => ("Не е намерено", "404 – тук няма какво да се охранява", "Страницата или записът, който търсите, не съществува или е изтрит.", "bi-signpost-split"),
+        403 => ("Нямате достъп", "403 – достъпът е отказан", "Нямате права да отворите тази страница.", "bi-shield-lock"),
+        400 => ("Невалидна заявка", "400 – невалидна заявка", "Заявката съдържа невалидни данни.", "bi-exclamation-octagon"),
+        _ => ($"Грешка {Model.StatusCode}", $"Грешка {Model.StatusCode}", "Заявката не може да бъде изпълнена.", "bi-exclamation-octagon"),
+    };
+    ViewData["Title"] = title;
+}
+<div class="gp-empty-state">
+    <i class="bi @icon"></i>
+    <h1>@heading</h1>
+    <p class="text-muted">@text</p>
+    <a class="btn btn-gp" asp-area="" asp-controller="Home" asp-action="Index">Към началната страница</a>
+</div>

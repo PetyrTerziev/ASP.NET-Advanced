@@ -1,0 +1,42 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Вход";
+}
+<div class="gp-card gp-auth-card">
+    <h1 class="h3 mb-1">Вход в ГардПост</h1>
+    <p class="text-muted">Влезте с имейла и паролата си.</p>
+
+    <form asp-action="Login" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="username" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label"></label>
+        </div>
+        <button type="submit" class="btn btn-gp w-100"><i class="bi bi-box-arrow-in-right"></i> Вход</button>
+    </form>
+
+    <p class="small text-center mt-3 mb-0">Нямате профил? <a asp-action="Register">Регистрирайте се</a></p>
+
+    <hr />
+    <div class="small text-muted gp-demo-accounts">
+        <strong>Демо профили:</strong><br />
+        Администратор: <code>admin@gardpost.bg</code> / <code>Admin123!</code><br />
+        Охранител: <code>ivan.petrov@gardpost.bg</code> / <code>Guard123!</code>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

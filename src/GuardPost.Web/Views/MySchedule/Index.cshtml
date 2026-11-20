@@ -1,0 +1,85 @@
+@model MyDashboardViewModel
+@{
+    ViewData["Title"] = "Моята страница";
+}
+
+<div class="gp-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <p class="gp-eyebrow mb-1">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+        <h1>Здравейте, @Model.FullName</h1>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-outline-dark" asp-controller="MySchedule" asp-action="Week"><i class="bi bi-calendar-week"></i> Моят график</a>
+        <a class="btn btn-outline-danger" asp-controller="Incidents" asp-action="Create"><i class="bi bi-megaphone"></i> Подай сигнал</a>
+    </div>
+</div>
+
+@if (Model.Guard is null)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        Профилът Ви все още не е свързан с картон на охранител. След като администратор го свърже, тук ще виждате смените си и ще можете да заявявате отпуск.
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="gp-stat">
+                <span class="gp-stat-icon"><i class="bi bi-calendar-check"></i></span>
+                <span class="gp-stat-value">@Model.Guard.ShiftsThisMonth</span>
+                <span class="gp-stat-label">смени този месец</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="gp-stat">
+                <span class="gp-stat-icon"><i class="bi bi-clock"></i></span>
+                <span class="gp-stat-value">@Model.Guard.HoursThisMonth.ToString("0.#")</span>
+                <span class="gp-stat-label">часа този месец</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="gp-stat">
+                <span class="gp-stat-icon"><i class="bi bi-person-badge"></i></span>
+                <span class="gp-stat-value fs-5">@Model.Guard.Rank.GetDisplayName()</span>
+                <span class="gp-stat-label">@Model.Guard.LicenseNumber</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="gp-stat" asp-controller="LeaveRequests" asp-action="Create">
+                <span class="gp-stat-icon"><i class="bi bi-airplane"></i></span>
+                <span class="gp-stat-value fs-5">Отпуск</span>
+                <span class="gp-stat-label">подай заявка</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section class="gp-card h-100">
+                <h2 class="gp-card-title"><i class="bi bi-clock-history"></i> Предстоящи смени</h2>
+                <partial name="_ShiftTablePartial" model="Model.Guard.UpcomingShifts"
+                         view-data='new ViewDataDictionary(ViewData) { ["ShowGuard"] = false, ["EmptyText"] = "Нямате предстоящи смени." }' />
+            </section>
+        </div>
+        <div class="col-lg-5">
+            <section class="gp-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="gp-card-title"><i class="bi bi-airplane"></i> Моите отпуски</h2>
+                    <a class="small" asp-controller="LeaveRequests" asp-action="Index">Всички</a>
+                </div>
+                <partial name="_LeaveTablePartial" model="Model.LeaveRequests.Take(4)"
+                         view-data='new ViewDataDictionary(ViewData) { ["Compact"] = true, ["EmptyText"] = "Нямате заявки за отпуск." }' />
+            </section>
+        </div>
+    </div>
+}
+
+<section class="gp-card mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="gp-card-title"><i class="bi bi-megaphone"></i> Моите последни сигнали</h2>
+        <a class="small" asp-controller="Incidents" asp-action="Index">Всички</a>
+    </div>
+    <partial name="_IncidentTablePartial" model="Model.MyIncidents"
+             view-data='new ViewDataDictionary(ViewData) { ["EmptyText"] = "Не сте подавали сигнали." }' />
+</section>

@@ -1,0 +1,43 @@
+@model IncidentDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-action="Index">Моите сигнали</a></li>
+        <li class="breadcrumb-item active" aria-current="page">№@Model.Id</li>
+    </ol>
+</nav>
+
+<div class="gp-page-header">
+    <div class="d-flex gap-2 mb-2">
+        <partial name="_SeverityBadgePartial" model="Model.Severity" />
+        <partial name="_IncidentStatusBadgePartial" model="Model.Status" />
+    </div>
+    <h1>@Model.Title</h1>
+    <p class="text-muted mb-0">@Model.SiteName · @Model.OccurredOn.ToString(ApplicationConstants.DateTimeFormat)</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <section class="gp-card mb-4">
+            <h2 class="gp-card-title">Описание</h2>
+            <p class="gp-pre mb-0">@Model.Description</p>
+        </section>
+        @if (!string.IsNullOrWhiteSpace(Model.ResolutionNotes))
+        {
+            <section class="gp-card gp-resolution">
+                <h2 class="gp-card-title"><i class="bi bi-check2-circle"></i> Решение</h2>
+                <p class="gp-pre mb-0">@Model.ResolutionNotes</p>
+            </section>
+        }
+    </div>
+    <div class="col-lg-6">
+        <partial name="_IncidentTimelinePartial" model="Model.Id" />
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/incident-timeline.js" asp-append-version="true"></script>
+}

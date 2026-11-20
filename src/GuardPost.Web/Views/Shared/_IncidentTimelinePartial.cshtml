@@ -1,0 +1,14 @@
+@model int
+@* AJAX timeline of an incident. Model = incident id. Script: wwwroot/js/incident-timeline.js *@
+<section class="gp-card" data-incident-timeline data-url="@Url.Content($"~/api/incidents/{Model}/updates")">
+    <h2 class="gp-card-title"><i class="bi bi-clock-history"></i> Хронология на действията</h2>
+    <ul class="gp-timeline mb-3">
+        <li class="text-muted small">Зареждане…</li>
+    </ul>
+    <form novalidate>
+        <label for="timeline-text" class="form-label small text-muted">Добавете действие или нова информация</label>
+        <textarea id="timeline-text" class="form-control" rows="2" maxlength="@EntityValidationConstants.IncidentUpdate.TextMaxLength" required></textarea>
+        <div class="gp-timeline-error text-danger small mt-1" role="alert"></div>
+        <button type="submit" class="btn btn-sm btn-gp mt-2"><i class="bi bi-send"></i> Добави</button>
+    </form>
+</section>

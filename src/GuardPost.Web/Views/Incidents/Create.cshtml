@@ -1,0 +1,49 @@
+@model ReportIncidentViewModel
+@{
+    ViewData["Title"] = "Подай сигнал";
+    ViewData["Subtitle"] = "Сигналът се изпраща веднага на дежурните администратори.";
+}
+<partial name="_PageHeaderPartial" model='"Сигнал за инцидент"' />
+
+<div class="gp-card gp-form-card">
+    <form asp-action="Create" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" placeholder="Кратко описание, напр. Счупен прозорец на задния вход" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SiteId" class="form-label"></label>
+                <select asp-for="SiteId" asp-items="@(new SelectList(Model.Sites, nameof(DropdownItemViewModel.Id), nameof(DropdownItemViewModel.Text)))" class="form-select">
+                    <option value="">— изберете обект —</option>
+                </select>
+                <span asp-validation-for="SiteId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="OccurredOn" class="form-label"></label>
+                <input asp-for="OccurredOn" class="form-control" />
+                <span asp-validation-for="OccurredOn" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Severity" class="form-label"></label>
+                <select asp-for="Severity" asp-items="Html.GetEnumSelectList<IncidentSeverity>()" class="form-select"></select>
+                <span asp-validation-for="Severity" class="text-danger small"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="5" placeholder="Какво се е случило, кой е участвал, какви действия са предприети"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+        </div>
+        <div class="gp-form-actions">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-send"></i> Изпрати сигнала</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Отказ</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

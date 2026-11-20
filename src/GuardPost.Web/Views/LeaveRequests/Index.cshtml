@@ -1,0 +1,17 @@
+@model IEnumerable<LeaveRequestListItemViewModel>
+@{
+    ViewData["Title"] = "Моите отпуски";
+}
+
+<div class="gp-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Моите отпуски</h1>
+        <p class="text-muted mb-0">Докато заявката чака одобрение, можете да я анулирате.</p>
+    </div>
+    <a class="btn btn-gp" asp-action="Create"><i class="bi bi-plus-lg"></i> Нова заявка</a>
+</div>
+
+<div class="gp-card">
+    <partial name="_LeaveTablePartial" model="Model"
+             view-data='new ViewDataDictionary(ViewData) { ["AllowCancel"] = true, ["EmptyText"] = "Нямате заявки за отпуск." }' />
+</div>

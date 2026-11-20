@@ -1,0 +1,23 @@
+@model MyIncidentsViewModel
+@{
+    ViewData["Title"] = "Моите сигнали";
+    var pager = new PagerViewModel
+    {
+        CurrentPage = Model.Result.Page,
+        TotalPages = Model.Result.TotalPages,
+    };
+}
+
+<div class="gp-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Моите сигнали</h1>
+        <p class="text-muted mb-0">Подадени сигнали: @Model.Result.TotalCount</p>
+    </div>
+    <a class="btn btn-danger" asp-action="Create"><i class="bi bi-megaphone"></i> Подай сигнал</a>
+</div>
+
+<div class="gp-card">
+    <partial name="_IncidentTablePartial" model="Model.Result.Items"
+             view-data='new ViewDataDictionary(ViewData) { ["EmptyText"] = "Все още не сте подавали сигнали." }' />
+</div>
+<partial name="_PaginationPartial" model="pager" />
